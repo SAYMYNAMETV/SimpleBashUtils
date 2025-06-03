@@ -15,7 +15,7 @@ typedef struct {
 
 void flagsParser(int argc, char* argv[], Options* opt, char* patternE);
 void s21Grep(Options* opt, int argc, char* argv[], char* buff);
-void s21GrepFile(Options* opt, char* pattern, char* filename);
-void outline(Options* opt, FILE* fp, regex_t re, char* file);
+void s21GrepFile(Options* opt, char* pattern, char* filename, int fileCount);
+void outline(Options* opt, FILE* fp, regex_t re, char* file, int fileCount);
 
 #endif  // _SRC_S21_GREP_H_

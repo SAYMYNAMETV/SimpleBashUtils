@@ -49,30 +49,24 @@ void s21Grep(Options* opt, int argc, char* argv[], char* buff) {
   if (opt->e) {
     snprintf(pattern, BUFF_SIZE, "%s", buff);
   }
-  int fileCount = 0;
-  if (argc - optind > 1) {
-    fileCount = 1;
-  }
+  int fileCount = (argc - optind > 1);
   for (int i = optind; i < argc; i++) {
-    if (fileCount && !opt->l) {
-      printf("%s:", argv[i]);
-    }
-    s21GrepFile(opt, pattern, argv[i]);
+    s21GrepFile(opt, pattern, argv[i], fileCount);
   }
 }
 
-void s21GrepFile(Options* opt, char* pattern, char* filename) {
+void s21GrepFile(Options* opt, char* pattern, char* filename, int fileCount) {
   regex_t re;
   int cflags = REG_EXTENDED;
   FILE* file;
   file = fopen(filename, "r");
   if (opt->i) {
-    cflags = REG_ICASE;
+    cflags = REG_ICASE | REG_EXTENDED;
   }
 
   if (file != NULL) {
     regcomp(&re, pattern, cflags);
-    outline(opt, file, re, filename);
+    outline(opt, file, re, filename, fileCount);
     regfree(&re);
     fclose(file);
   } else {
@@ -80,7 +74,7 @@ void s21GrepFile(Options* opt, char* pattern, char* filename) {
   }
 }
 
-void outline(Options* opt, FILE* fp, regex_t re, char* file) {
+void outline(Options* opt, FILE* fp, regex_t re, char* file, int fileCount) {
   char text[BUFF_SIZE] = {0};
   regmatch_t pmatch[1];
   int lineMatches = 0, nline = 1;
@@ -96,10 +90,13 @@ void outline(Options* opt, FILE* fp, regex_t re, char* file) {
     if (result == REG_NOMATCH && opt->v) {
       match = 1;
     }
-    if (match && !opt->l && !opt->c && opt->n) {
-      printf("%d:", nline);
-    }
     if (match && !opt->l && !opt->c) {
+      if (fileCount) {
+        printf("%s:", file);
+      }
+      if (opt->n) {
+        printf("%d:", nline);
+      }
       printf("%s", text);
     }
     lineMatches += match;
